@@ -223,6 +223,23 @@ void modechange(void) interrupt 2 {
     mode = (mode + 1) % NUM_MODES;
 }
 
+void serialMessage(char inputMessage[])  {
+		unsigned char i;
+		unsigned char msg[] = {inputMessage}
+		int length = sizeof(msg) / sizeof(int);
+		
+		SCON = 0x40;
+		
+		EA = 1;
+		
+		uart_init();
+		
+		for( i = 0; i < length; i++)
+			uart_transmi(msg[i]);
+		
+		EA = 0;
+}
+
 void main(void) {
     char begin = 0;
     char end = 4;
