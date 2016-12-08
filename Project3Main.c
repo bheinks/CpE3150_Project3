@@ -1,5 +1,6 @@
-#include <reg932.h>
-#include <uart.h>
+#include "uart.h"
+#include "reg932.h"
+#include "uart.c"
 
 #define TEMPO       (OSC_FREQ/204800)
 #define N_PAUSE     250 //(OSC_FREQ/29491)
@@ -245,20 +246,17 @@ void modechange(void) interrupt 2 {
 }
 
 void serialMessage(unsigned char *msg)  {
-		unsigned char i;
-		
-		int length = sizeof(msg) / sizeof(int);
-		
-		SCON = 0x40;
-		
-		EA = 1;
-		
-		uart_init();
-		
-		for( i = 0; i < length; i++)
-			uart_transmit(msg[i]);
-		
-		ES = 0;
+    unsigned char i;
+
+    SCON = 0x40;
+    EA = 1;
+    
+    uart_init();
+    
+    for(i = 0; msg[i] != '\0'; i++)
+        uart_transmit(msg[i]);
+    
+    ES = 0;
 }
 
 void main(void) {
@@ -297,9 +295,11 @@ void main(void) {
             }
         }
         // music mode
-        while(mode == tunes)
+        while(mode == tunes) {
+            serialMessage(song.title);
             music(song);
-				
+        }
+        // keyboard/piano mode
         while(mode == keyboard) {
             if(SW4 == 0)
                 play(A5,16);
