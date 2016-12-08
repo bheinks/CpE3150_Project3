@@ -1,6 +1,5 @@
 #include <reg932.h>
 #include <uart.h>
-#include <uart.c>
 
 #define OSC_FREQ    7372800
 #define TEMPO       (OSC_FREQ/204800)
@@ -67,6 +66,10 @@ sbit LED9 = P2^6;
 sbit SW4 = P2^1;
 sbit SW5 = P0^3;
 sbit SW6 = P2^2;
+
+sbit INT0_PIN = P1^3;
+
+bit MUTED = 0;
 
 // enum for program state control
 enum MODES {
@@ -178,7 +181,7 @@ void play(char note, char duration) {
     unsigned char t = 20; // t = 20 puts a small delay between notes
     p_per = &period[note];
 
-    if(*p_per != 0) {
+    if(!MUTED) {
         // Enable timer
         TH1 = -(*p_per) >> 8;
         TL1 = -(*p_per) & 0x0ff;
@@ -222,16 +225,21 @@ void music(char begin, char end) {
 }
 
 void mute(void) interrupt 0 {
-    // some code that mutes 
+	//delay(20);
+	//if(INT0_PIN)
+	//{
+		LED9 = ~LED9;
+	MUTED = ~MUTED;
+	//}
 }
 
 void modechange(void) interrupt 2 {
     mode = (mode + 1) % NUM_MODES;
 }
 
-void serialMessage(char inputMessage[])  {
+void serialMessage(unsigned char *msg)  {
 		unsigned char i;
-		unsigned char msg[] = {inputMessage};
+		//unsigned char msg[] = inputMessage;
 		int length = sizeof(msg) / sizeof(int);
 		
 		SCON = 0x40;
@@ -241,9 +249,9 @@ void serialMessage(char inputMessage[])  {
 		uart_init();
 		
 		for( i = 0; i < length; i++)
-			uart_transmi(msg[i]);
+			uart_transmit(msg[i]);
 		
-		EA = 0;
+		ES = 0;
 }
 
 void main(void) {
