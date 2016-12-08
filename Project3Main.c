@@ -62,7 +62,17 @@ sbit LED7 = P2^5;
 sbit LED8 = P0^7;
 sbit LED9 = P2^6;
 
-volatile unsigned char mode = 0; // mode variable for holding the current mode
+// enum for program state control
+enum MODES {
+    debug,
+    tunes,
+    keyboard,
+    mike,
+    brett,
+    bret,
+    NUM_MODES
+};
+enum MODES mode;
 
 code int period[] = {
     0, B6, A6, G6, C7, 0, F6, C6, D6, E6, B4, E4, A4, G5, D4, D5, C5, 
@@ -192,7 +202,7 @@ void music(char begin, char end) {
                 
         do {
             // return if interrupted
-            if(mode != 1)
+            if(mode != tunes)
                 return;
             play(note, duration);  // play note
             i++;
@@ -205,14 +215,12 @@ void music(char begin, char end) {
     } while (j < end);
 }
 
-void mute(void) interrupt 0
-{
+void mute(void) interrupt 0 {
     // some code that mutes 
 }
 
-void modechange(void) interrupt 2
-{
-    mode = (mode + 1) % 6;
+void modechange(void) interrupt 2 {
+    mode = (mode + 1) % NUM_MODES;
 }
 
 void main(void) {
@@ -232,27 +240,22 @@ void main(void) {
     EX1 = 1;
     EA = 1;
     
-    while(1)
-    {
+    while(1) {
         //debugging mode
-        while(mode == 0) 
-        {
+        while(mode == debug) {
             unsigned int i;
             
-            for(i=0;i<10;i++)
-            {
+            for(i=0;i<10;i++) {
                 unsigned int j;
-                if(mode > 0)
+
+                if(mode != debug)
                     break;
                 LED5 = ~LED5;
                 for(j = 0; j < 60000; j++);
             }
         }
-        while(mode == 1)
+        // music mode
+        while(mode == tunes)
             music(begin, end);
-        
-        //while(mode == 2)
-
-        //while(mode == 3)
     }
 }
