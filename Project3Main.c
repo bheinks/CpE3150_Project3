@@ -231,7 +231,7 @@ void music(Song song) {
         if(mode != tunes)
             return;
         
-        play(note, duration);
+					play(note, duration);
     }
 }
 
