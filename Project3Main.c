@@ -83,11 +83,33 @@ enum MODES {
 };
 enum MODES mode;
 
+typedef struct Song {
+    unsigned char* title;
+    unsigned char length;
+    unsigned char* notes;
+    unsigned char* durations;
+} Song;
+
 code int period[] = {
     0, B6, A6, G6, C7, 0, F6, C6, D6, E6, B4, E4, A4, G5, D4, D5, C5, 
     C4, G4, E5, 0, 0, 0, 0, 0, 0, 0, 0, Ab3, G3, B3, F5, D7, 
     Bb6, Ab6, Gb6, Bb5, 0, A5, B5, Db6, Eb6, Bb4, Eb4, Ab4, Ab5, Db4, Db5, F4, 
     Bb3, Gb4, Eb5, 0, 0, 0, 0, 0, 0, 0, 0, F3, E3, A3, Gb5
+};
+
+code unsigned char ode_to_joy[][62] = {
+    {
+        19,19,31,13,13,31,19,15,16,16,15,19,19,15,15,19,
+        19,31,13,13,31,19,15,16,16,15,19,15,16,16,15,15,
+        19,16,15,19,31,19,16,15,19,31,19,15,16,15,18,19,
+        19,31,13,13,31,19,15,16,16,15,19,15,16,16
+    },
+    {
+        16,16,16,16,16,16,16,16,16,16,16,16,24,8,32,
+        16,16,16,16,16,16,16,16,16,16,16,16,24,8,32,
+        16,16,16,16,16,8,8,16,16,16,8,8,16,16,16,16,32,
+        16,16,16,16,16,16,16,16,16,16,16,16,24,8,32
+    }
 };
 
 code char notes[26][20] = { // ODE TO JOY
@@ -199,38 +221,24 @@ void play(char note, char duration) {
 }
 
 // play music
-void music(char begin, char end) {
+void music(Song song) {
     unsigned char note, duration;
-    unsigned char i, j;
+    unsigned char i;
     
-    i = 0;
-    j = begin;
-    do {
-        note = notes[j][i];  // read next note and duration
-        duration = dur[j][i];
-                
-        do {
-            // return if interrupted
-            if(mode != tunes)
-                return;
-            play(note, duration);  // play note
-            i++;
-            note = notes[j][i];  // repeat until dur=0 (indicates end of row (phrase))
-            duration = dur[j][i];
-        } while (duration != 0);
-
-    i = 0;
-    j++;
-    } while (j < end);
+    for(i = 0; i < song.length; i++) {
+        note = song.notes[i];
+        duration = song.durations[i];
+        
+        if(mode != tunes)
+            return;
+        
+        play(note, duration);
+    }
 }
 
 void mute(void) interrupt 0 {
-	//delay(20);
-	//if(INT0_PIN)
-	//{
-		LED9 = ~LED9;
+	LED9 = ~LED9;
 	MUTED = ~MUTED;
-	//}
 }
 
 void modechange(void) interrupt 2 {
@@ -239,13 +247,8 @@ void modechange(void) interrupt 2 {
 
 void serialMessage(unsigned char *msg)  {
 		unsigned char i;
-
-	
-		//unsigned char msg[] = inputMessage;
-	
 		
 		int length = sizeof(inputMesasge) / sizeof(int);
-
 		
 		SCON = 0x40;
 		
@@ -260,8 +263,7 @@ void serialMessage(unsigned char *msg)  {
 }
 
 void main(void) {
-    char begin = 0;
-    char end = 4;
+    Song song;
     TMOD = 0x10;
     
     // setting ports bi-directional
@@ -275,6 +277,11 @@ void main(void) {
     IT1 = 1;
     EX1 = 1;
     EA = 1;
+    
+    song.title = "Ode to Joy";
+    song.length = 62;
+    song.notes = ode_to_joy[0];
+    song.durations = ode_to_joy[1];
     
     while(1) {
         //debugging mode
@@ -292,16 +299,15 @@ void main(void) {
         }
         // music mode
         while(mode == tunes)
-            music(begin, end);
+            music(song);
 				
-				while(mode == keyboard)
-				{
+        while(mode == keyboard) {
             if(SW4 == 0)
-							play(A5,16);
-						if(SW5 == 0)
-							play(B5,16);
-						if(SW6 == 0)
-							play(E6,16);
-					}
+                play(A5,16);
+            if(SW5 == 0)
+                play(B5,16);
+            if(SW6 == 0)
+                play(E6,16);
+        }
     }
 }
