@@ -239,7 +239,9 @@ void modechange(void) interrupt 2 {
 
 void serialMessage(unsigned char *msg)  {
 		unsigned char i;
+	
 		//unsigned char msg[] = inputMessage;
+	
 		int length = sizeof(msg) / sizeof(int);
 		
 		SCON = 0x40;
