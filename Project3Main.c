@@ -5,6 +5,7 @@
 #define TEMPO       (OSC_FREQ/204800)
 #define N_PAUSE     250 //(OSC_FREQ/29491)
 
+// define individual musical notes
 #define E3          ((OSC_FREQ/4)/164.81)
 #define F3          ((OSC_FREQ/4)/174.61)
 #define G3          ((OSC_FREQ/4)/196.00)
@@ -67,6 +68,7 @@ sbit SW4 = P2^1;
 sbit SW5 = P0^3;
 sbit SW6 = P2^2;
 
+// state determining whether or not speaker should be muted
 bit MUTED = 0;
 
 // enum for program state control
@@ -82,6 +84,7 @@ enum MODES {
 };
 enum MODES mode;
 
+// struct containing individual song
 typedef struct Song {
     unsigned char* title;
     unsigned char length;
@@ -138,6 +141,8 @@ code int period[] = {
     D7      // 45
 };
 
+// begin song definition
+
 code unsigned char Super_Mario[][154] = {
     {
         //E5,E5,E5,C5,E5,G5,G4,C5,G4,E4,A4,B4,Bb4,A4,G4,E5,G5,A5,
@@ -148,8 +153,8 @@ code unsigned char Super_Mario[][154] = {
         //A4,G4,E5,E5,E5,C5,E5,G5,G4,E5,C5,G,Aa5,A4,F5,F5,A4,B4,A5,A5,A5,
         //G5,F5,E5,C5,A4,G4,E5,C5,G4,Aa5,A4,F5,F5,A4,B4,F5,F5,F5,E5,D5,C5,C5,
         //G4,E4,A4,B4,A4,Aa5,Bb4,Aa5,E4,D4,E4
-        24,24,24,20,24,27,0,15,0,20,15,12,17,19,18,17,15,24,27,29,//20
-        25,27,24,20,22,19,20,15,12,17,19,18,17,15,24,27,29,25,27,//39
+        24,24,24,20,24,27,0,15,0,20,15,12,17,19,18,17,15,24,27,29,
+        25,27,24,20,22,19,20,15,12,17,19,18,17,15,24,27,29,25,27,
         24,20,22,19,27,26,25,22,24,16,17,20,17,20,22,27,26,25,22,24,
         32,32,32,0,27,26,25,22,24,16,17,20,17,20,22,23,22,20,0,20,20,20,
         20,22,24,20,17,15,20,20,20,20,22,24,20,20,20,20,22,24,20,
@@ -158,10 +163,10 @@ code unsigned char Super_Mario[][154] = {
         15,12,17,19,17,28,18,28,12,10,12
     },
     {
-        8,8,16,8,16,16,16,16,16,24,24,24,8,16,8,24,8,16,8,16,//20
-        8,16,16,8,8,24,24,24,24,8,16,8,24,8,16,8,16,8,16,//39
-        16,8,8,24,8,8,8,16,16,8,8,16,8,8,24,8,8,8,16,16,//59
-        16,8,16,16,8,8,8,16,16,8,8,16,8,8,24,24,24,24,24//77
+        8,8,16,8,16,16,16,16,16,24,24,24,8,16,8,24,8,16,8,16,
+        8,16,16,8,8,24,24,24,24,8,16,8,24,8,16,8,16,8,16,
+        16,8,8,24,8,8,8,16,16,8,8,16,8,8,24,8,8,8,16,16,
+        16,8,16,16,8,8,8,16,16,8,8,16,8,8,24,24,24,24,24
     }
 };
 
@@ -198,8 +203,8 @@ code unsigned char gerudo_valley[][73] = {
 
 code unsigned char camptown_races[][48] = {
     {
-        27, 27, 24, 27, 29, 27, 24, 24, 22, 24, 22, 27, 27, 24, 27, 29, 27, 24, //18
-        22, 24, 25, 24, 22, 20, 20, 20, 24, 27, 32, 29, 29, 32, 29, 27,            //34
+        27, 27, 24, 27, 29, 27, 24, 24, 22, 24, 22, 27, 27, 24, 27, 29, 27, 24,
+        22, 24, 25, 24, 22, 20, 20, 20, 24, 27, 32, 29, 29, 32, 29, 27,
         27, 27, 24, 27, 29, 27, 24, 22, 24, 25, 24, 22, 20, 0
     },
     {
@@ -242,7 +247,7 @@ code unsigned char great_fairy_fountain[][129] = {
 
 int* p_per;
 
-// Interrupt Handler for Timer 1 (Generates sound)
+// interrupt handler for timer 1 (generates sound)
 void clk(void) interrupt 3 using 1 {
     TH1 = -(*p_per) >> 8;
     TL1 = -(*p_per) & 0x0ff;
@@ -297,15 +302,18 @@ void music(Song song) {
     }
 }
 
+// mute speaker on external interrupt 0
 void mute(void) interrupt 0 {
 	LED9 = ~LED9;
 	MUTED = ~MUTED;
 }
 
+// change program state on external interrupt 1
 void modechange(void) interrupt 2 {
     mode = (mode + 1) % NUM_MODES;
 }
 
+// send string over serial port
 void serialMessage(unsigned char *msg)  {
     unsigned char i;
 
@@ -327,7 +335,7 @@ void main(void) {
     Song song1, song2, mikeSong, brettSong, bretSong;
     TMOD = 0x10;
     
-    // setting ports bi-directional
+    // set ports bi-directional
     P0M1 = 0;
     P1M1 = 0;
     P2M1 = 0;
@@ -339,6 +347,7 @@ void main(void) {
     EX1 = 1;
     EA = 1;
     
+    // instantiate song structs
     song1.title = "Camptown Races";
     song1.length = 48;
     song1.notes = camptown_races[0];
