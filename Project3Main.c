@@ -97,6 +97,14 @@ code int period[] = {
     Bb3, Gb4, Eb5, 0, 0, 0, 0, 0, 0, 0, 0, F3, E3, A3, Gb5
 };
 
+code unsigned char Super_Mario[][6] = {
+    {
+        E5,E5,E5,C5,E5,G5
+    },
+    {
+        8,8,16,8,16,8
+    }
+	};
 code unsigned char ode_to_joy[][62] = {
     {
         19,19,31,13,13,31,19,15,16,16,15,19,19,15,15,19,
@@ -260,7 +268,7 @@ void serialMessage(unsigned char *msg)  {
 }
 
 void main(void) {
-    Song song;
+    Song song, mike;
     TMOD = 0x10;
     
     // setting ports bi-directional
@@ -279,6 +287,11 @@ void main(void) {
     song.length = 62;
     song.notes = ode_to_joy[0];
     song.durations = ode_to_joy[1];
+	
+		mike.title = "Super Mario"
+		mike.length = 6;
+		mike.notes = Super_Mario[0]
+		mike.durations = Super_Mario[1]
     
     while(1) {
         //debugging mode
@@ -307,6 +320,12 @@ void main(void) {
                 play(B5,16);
             if(SW6 == 0)
                 play(E6,16);
+						
         }
+				while(mode == mike)
+				{
+					serialMessage(mike.title);
+            music(mike);
+				}
     }
 }
