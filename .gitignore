@@ -2,3 +2,6 @@
 
 !.gitignore
 !Project3Main.c
+!reg932.h
+!uart.c
+!uart.h
