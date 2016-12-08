@@ -67,14 +67,13 @@ sbit SW4 = P2^1;
 sbit SW5 = P0^3;
 sbit SW6 = P2^2;
 
-sbit INT0_PIN = P1^3;
-
 bit MUTED = 0;
 
 // enum for program state control
 enum MODES {
     debug,
-    tunes,
+    tune1,
+    tune2,
     keyboard,
     mike,
     brett,
@@ -141,7 +140,7 @@ code int period[] = {
 
 code unsigned char Super_Mario[][6] = {
     {
-        E5,E5,E5,C5,E5,G5 //G4,C5,G4,E4,A4,B4,Bb4,A4,G4,E5,G5,A5,
+        24,24,24,20,24,27//E5,E5,E5,C5,E5,G5 //G4,C5,G4,E4,A4,B4,Bb4,A4,G4,E5,G5,A5,
 			//F5,G5,E5,C5,D5,B4,C5,G4,E4,A4,B4,Bb4,A4,G4,E5,G5,A5,F5,G5,
 			//E5,C5,D5,B4,G5,Gg5,F5,D5,E5,Aa5,A4,C5,A4,C5,D5,G5,Gg5,F5,D5,E5,
 			//C6,C6,C6,G5,Gg5,F5,D5,E5,Aa5,A4,C5,A4,C5,D5,Ee5,D5,C5,C5,C5,C5,
@@ -153,7 +152,7 @@ code unsigned char Super_Mario[][6] = {
     {
         8,8,16,8,16,8
     }
-	};
+};
 
 code unsigned char old_macdonald[][61] = {
 	{
@@ -182,6 +181,15 @@ code unsigned char gerudo_valley[][72] = {
         4,4,4,4,12,4,4,4,24,4,4,4,4,12,4,4,4,24,4,4,4,4,12,4,4,4,24,4,4,4,4,48,
         8,12,12,12,12,8,16,4,4,4,38,8,12,12,12,12,8,16,4,4,4,38,8,12,12,12,12,
         8,16,4,4,4,28,8,24,8,24,8,64
+    }
+};
+
+code unsigned char camptown_races[][12] = {
+    {
+        24, 27, 27, 24, 27, 29, 27, 24, 24, 22, 24, 22
+    },
+    {
+        16, 16, 16, 16, 16, 16, 16, 16, 16, 32, 16, 32
     }
 };
 
@@ -229,12 +237,13 @@ void play(unsigned char note, unsigned char duration) {
 void music(Song song) {
     unsigned char note, duration;
     unsigned char i;
+    enum MODES start_mode = mode; 
     
     for(i = 0; i < song.length; i++) {
         note = song.notes[i];
         duration = song.durations[i];
         
-        if(mode != tunes)
+        if(mode != start_mode)
             return;
         
         play(note, duration);
@@ -265,7 +274,7 @@ void serialMessage(unsigned char *msg)  {
 }
 
 void main(void) {
-    Song song, mikeSong, bretSong;
+    Song song1, song2, mikeSong, brettSong, bretSong;
     TMOD = 0x10;
     
     // setting ports bi-directional
@@ -280,21 +289,25 @@ void main(void) {
     EX1 = 1;
     EA = 1;
     
-
-    //song.title = "Ode to Joy";
-    //song.length = 62;
-    //song.notes = ode_to_joy[0];
-    //song.durations = ode_to_joy[1];
-	
-		mikeSong.title = "Super Mario";
-		mikeSong.length = 6;
-		mikeSong.notes = Super_Mario[0];
-		mikeSong.durations = Super_Mario[1];
-		
-		bretSong.title = "Gerudo Valley";
-		bretSong.length = 62;
-		bretSong.notes = gerudo_valley[0];
-		bretSong.durations = gerudo_valley[1];
+    song1.title = "Camptown Races";
+    song1.length = 12;
+    song1.notes = camptown_races[0];
+    song1.durations = camptown_races[1];
+    
+    song2.title = "Old MacDonald";
+    song2.length = 61;
+    song2. notes = old_macdonald[0];
+    song2.durations = old_macdonald[1];
+    
+    mikeSong.title = "Super Mario";
+    mikeSong.length = 6;
+    mikeSong.notes = Super_Mario[0];
+    mikeSong.durations = Super_Mario[1];
+    
+    bretSong.title = "Gerudo Valley";
+    bretSong.length = 72;
+    bretSong.notes = gerudo_valley[0];
+    bretSong.durations = gerudo_valley[1];
     
     while(1) {
         //debugging mode
@@ -310,10 +323,15 @@ void main(void) {
                 for(j = 0; j < 60000; j++);
             }
         }
-        // music mode
-        while(mode == tunes) {
-            serialMessage(song.title);
-            music(song);
+        // tune1 mode
+        while(mode == tune1) {            
+            serialMessage(song1.title);
+            music(song1);
+        }
+        // tune2 mode
+        while(mode == tune2) {
+            serialMessage(song2.title);
+            music(song2);
         }
         // keyboard/piano mode
         while(mode == keyboard) {
@@ -322,14 +340,15 @@ void main(void) {
             if(SW5 == 0)
                 play(B5,16);
             if(SW6 == 0)
-                play(E6,16);
-						
+                play(E6,16);	
         }
+        // mike's song
         while(mode == mike)
         {
             serialMessage(mikeSong.title);
             music(mikeSong);
         }
+        // bret's song
         while(mode == bret)
         {
             serialMessage(bretSong.title);
