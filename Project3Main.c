@@ -239,10 +239,14 @@ void modechange(void) interrupt 2 {
 
 void serialMessage(unsigned char *msg)  {
 		unsigned char i;
+<<<<<<< HEAD
 	
 		//unsigned char msg[] = inputMessage;
 	
 		int length = sizeof(msg) / sizeof(int);
+=======
+		int length = sizeof(inputMesasge) / sizeof(int);
+>>>>>>> origin/master
 		
 		SCON = 0x40;
 		
@@ -251,7 +255,7 @@ void serialMessage(unsigned char *msg)  {
 		uart_init();
 		
 		for( i = 0; i < length; i++)
-			uart_transmit(msg[i]);
+			uart_transmit(inputMessage[i]);
 		
 		ES = 0;
 }
