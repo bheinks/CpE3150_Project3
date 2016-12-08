@@ -1,7 +1,6 @@
 #include <reg932.h>
 #include <uart.h>
 
-#define OSC_FREQ    7372800
 #define TEMPO       (OSC_FREQ/204800)
 #define N_PAUSE     250 //(OSC_FREQ/29491)
 
@@ -248,7 +247,7 @@ void modechange(void) interrupt 2 {
 void serialMessage(unsigned char *msg)  {
 		unsigned char i;
 		
-		int length = sizeof(inputMesasge) / sizeof(int);
+		int length = sizeof(msg) / sizeof(int);
 		
 		SCON = 0x40;
 		
@@ -257,7 +256,7 @@ void serialMessage(unsigned char *msg)  {
 		uart_init();
 		
 		for( i = 0; i < length; i++)
-			uart_transmit(inputMessage[i]);
+			uart_transmit(msg[i]);
 		
 		ES = 0;
 }
