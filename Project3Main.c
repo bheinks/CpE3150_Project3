@@ -139,6 +139,22 @@ code int period[] = {
     D7      // 45
 };
 
+code unsigned char Super_Mario[][6] = {
+    {
+        E5,E5,E5,C5,E5,G5 //G4,C5,G4,E4,A4,B4,Bb4,A4,G4,E5,G5,A5,
+			//F5,G5,E5,C5,D5,B4,C5,G4,E4,A4,B4,Bb4,A4,G4,E5,G5,A5,F5,G5,
+			//E5,C5,D5,B4,G5,Gg5,F5,D5,E5,Aa5,A4,C5,A4,C5,D5,G5,Gg5,F5,D5,E5,
+			//C6,C6,C6,G5,Gg5,F5,D5,E5,Aa5,A4,C5,A4,C5,D5,Ee5,D5,C5,C5,C5,C5,
+			//C5,D5,E5,C5,A4,G4,C5,C5,C5,C5,D5,E5,C5,C5,C5,C5,D5,E5,C5,
+			//A4,G4,E5,E5,E5,C5,E5,G5,G4,E5,C5,G,Aa5,A4,F5,F5,A4,B4,A5,A5,A5,
+			//G5,F5,E5,C5,A4,G4,E5,C5,G4,Aa5,A4,F5,F5,A4,B4,F5,F5,F5,E5,D5,C5,C5,
+			//G4,E4,A4,B4,A4,Aa5,Bb4,Aa5,E4,D4,E4
+    },
+    {
+        8,8,16,8,16,8
+    }
+	};
+
 code unsigned char old_macdonald[][61] = {
 	{
         20,20,20,15,29,29,15,24,24,22,22,20,0,15,20,20,20,15,
