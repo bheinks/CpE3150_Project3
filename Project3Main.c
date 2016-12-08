@@ -179,18 +179,20 @@ code unsigned char gerudo_valley[][72] = {
     },
     {
         8,8,8,8,24,8,8,8,48,8,8,8,8,24,8,8,8,48,8,8,8,8,24,8,8,
-				8,48,8,8,8,8,96,16,24,24,24,24,16,32,8,8,8,76,16,24,24,
-				24,24,16,32,8,8,8,76,16,24,24,24,24,16,132,8,8,8,56,16,
-				48,16,48,16,128
+        8,48,8,8,8,8,96,16,24,24,24,24,16,32,8,8,8,76,16,24,24,
+        24,24,16,32,8,8,8,76,16,24,24,24,24,16,132,8,8,8,56,16,
+        48,16,48,16,128
     }
 };
 
-code unsigned char camptown_races[][12] = {
+code unsigned char camptown_races[][24] = {
     {
-        24, 27, 27, 24, 27, 29, 27, 24, 24, 22, 24, 22
+        27, 27, 24, 27, 29, 27, 24, 24, 22, 0, 24, 22, 27, 27, 24, 27, 29, 27, 24,
+        22, 22, 27, 22, 20
     },
     {
-        16, 16, 16, 16, 16, 16, 16, 16, 16, 32, 16, 32
+        16, 16, 16, 16, 16, 16, 32, 16, 32, 4, 16, 32, 16, 16, 16, 16, 16, 16, 32,
+        16,  8, 16, 16, 32
     }
 };
 
@@ -217,7 +219,7 @@ void play(unsigned char note, unsigned char duration) {
     unsigned char t = 20; // t = 20 puts a small delay between notes
     p_per = &period[note];
 
-    if(!MUTED) {
+    if(!MUTED && *p_per != 0) {
         // Enable timer
         TH1 = -(*p_per) >> 8;
         TL1 = -(*p_per) & 0x0ff;
@@ -294,7 +296,7 @@ void main(void) {
     EA = 1;
     
     song1.title = "Camptown Races";
-    song1.length = 12;
+    song1.length = 24;
     song1.notes = camptown_races[0];
     song1.durations = camptown_races[1];
     
