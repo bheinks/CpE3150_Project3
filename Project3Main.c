@@ -64,6 +64,10 @@ sbit LED7 = P2^5;
 sbit LED8 = P0^7;
 sbit LED9 = P2^6;
 
+sbit SW4 = P2^1;
+sbit SW5 = P0^3;
+sbit SW6 = P2^2;
+
 // enum for program state control
 enum MODES {
     debug,
@@ -276,5 +280,15 @@ void main(void) {
         // music mode
         while(mode == tunes)
             music(begin, end);
+				
+				while(mode == keyboard)
+				{
+            if(SW4 == 0)
+							play(A5,16);
+						if(SW5 == 0)
+							play(B5,16);
+						if(SW6 == 0)
+							play(E6,16);
+					}
     }
 }
