@@ -271,6 +271,9 @@ void serialMessage(unsigned char *msg)  {
     for(i = 0; msg[i] != '\0'; i++)
         uart_transmit(msg[i]);
     
+    uart_transmit('\n');
+    uart_transmit('\r');
+    
     ES = 0;
 }
 
